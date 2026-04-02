@@ -32,6 +32,17 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# prisma sqlite (any path under prisma/)
+/prisma/*.db
+/prisma/*.db-journal
+prisma/**/*.db
+prisma/**/*.db-journal
+
+# user uploads
+/public/uploads/*
+!/public/uploads/.gitkeep
 
 # vercel
 .vercel
