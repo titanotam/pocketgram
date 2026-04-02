@@ -24,9 +24,10 @@ export default async function CreateNotePage() {
         New note
       </h1>
       <p className="mt-2 text-sm text-gray-600">
-        Add a title, category, and content. Images are stored under{" "}
-        <code className="rounded bg-gray-100 px-1 text-gray-800">/uploads</code>
-        .
+        Add a title, category, and content. Attached images are saved to your host
+        (e.g. Vercel Blob in production or{" "}
+        <code className="rounded bg-gray-100 px-1 text-gray-800">/uploads</code>{" "}
+        locally).
       </p>
       <div className="mt-8">
         <CreateNoteForm

@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
@@ -44,10 +45,18 @@ export async function POST(req: Request) {
   }
 
   const name = `${randomUUID()}${ext}`;
+
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const blob = await put(`uploads/${name}`, buf, {
+      access: "public",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      contentType: type,
+    });
+    return NextResponse.json({ url: blob.url });
+  }
+
   const dir = path.join(process.cwd(), "public", "uploads");
   await mkdir(dir, { recursive: true });
   await writeFile(path.join(dir, name), buf);
-
-  const url = `/uploads/${name}`;
-  return NextResponse.json({ url });
+  return NextResponse.json({ url: `/uploads/${name}` });
 }
