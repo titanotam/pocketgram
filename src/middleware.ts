@@ -10,9 +10,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const secret =
+    process.env["AUTH_SECRET"]?.trim() ||
+    process.env["NEXTAUTH_SECRET"]?.trim();
+
+  // Must match Auth.js cookie names: HTTPS uses `__Secure-authjs.session-token`.
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const secureCookie =
+    request.nextUrl.protocol === "https:" || forwardedProto === "https";
+
   const token = await getToken({
     req: request,
-    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    secret,
+    secureCookie,
   });
 
   if (!token?.sub) {

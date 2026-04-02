@@ -25,7 +25,11 @@ export function LoginForm() {
         redirect: false,
       });
       if (res?.error) {
-        setError("Invalid username or password.");
+        setError(
+          res.error === "CredentialsSignin"
+            ? "Invalid username or password."
+            : "Sign-in failed (database error or no users—seed production DB with the same DATABASE_URL as Vercel; see .env.example).",
+        );
         return;
       }
       router.push(callbackUrl);

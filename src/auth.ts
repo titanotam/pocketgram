@@ -3,11 +3,18 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
-const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+/** Prefer env at runtime; omit `secret` when unset so Auth.js can read AUTH_SECRET itself ([MissingSecret](https://errors.authjs.dev#missingsecret)). */
+function authSecret(): string | undefined {
+  const a = process.env["AUTH_SECRET"]?.trim();
+  const b = process.env["NEXTAUTH_SECRET"]?.trim();
+  return a || b || undefined;
+}
+
+const secret = authSecret();
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
-  secret: authSecret,
+  ...(secret ? { secret } : {}),
   providers: [
     Credentials({
       id: "credentials",
@@ -25,19 +32,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           typeof credentials?.password === "string" ? credentials.password : "";
         if (!username || !password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { username },
-        });
-        if (!user) return null;
+        try {
+          const user = await prisma.user.findUnique({
+            where: { username },
+          });
+          if (!user) return null;
 
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+          const ok = await bcrypt.compare(password, user.passwordHash);
+          if (!ok) return null;
 
-        return {
-          id: user.id,
-          name: user.displayName ?? user.username,
-          email: null,
-        };
+          return {
+            id: user.id,
+            name: user.displayName ?? user.username,
+            email: null,
+          };
+        } catch (err) {
+          console.error("[auth] credentials authorize DB error:", err);
+          throw err;
+        }
       },
     }),
   ],
