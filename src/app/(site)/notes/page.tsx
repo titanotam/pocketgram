@@ -64,7 +64,7 @@ export default async function AllNotesPage() {
             <tbody className="divide-y divide-gray-100 bg-white">
               {rows.map((n) => (
                 <tr key={n.key} className="hover:bg-gray-50">
-                  <td className="whitespace-nowrap px-4 py-3 text-gray-600">
+                  <td className="whitespace-nowrap px-4 py-3 text-gray-600 align-top">
                     {n.categoryTitle}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 align-top">
